@@ -1,0 +1,572 @@
+/* src/app/globals.css - VERSIÓN RESPONSIVA MEJORADA */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================================================ */
+/* VARIABLES CSS PERSONALIZADAS */
+/* ================================================================ */
+
+@layer base {
+  :root {
+    /* Colores base - Compatibles con shadcn/ui */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+
+    /* Variables específicas de NeuroLog */
+    --neurolog-gradient: linear-gradient(135deg, hsl(var(--primary)), hsl(262 83% 58%));
+    --neurolog-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --neurolog-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    /* Espaciado responsivo */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    
+    /* Tamaños de fuente responsivos */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    
+    /* Breakpoints como variables CSS */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+
+/* ================================================================ */
+/* RESET Y BASE STYLES */
+/* ================================================================ */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Mejoras de accesibilidad */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+  
+  /* Prevenir zoom en inputs en iOS */
+  input, select, textarea {
+    font-size: 16px;
+  }
+  
+  @media (min-width: 768px) {
+    input, select, textarea {
+      font-size: 14px;
+    }
+  }
+  
+  /* Scrollbar personalizado */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+/* ================================================================ */
+/* UTILIDADES RESPONSIVAS PERSONALIZADAS */
+/* ================================================================ */
+
+@layer utilities {
+  /* Text truncation mejorado */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  
+  /* Utilidades de espaciado dinámico */
+  .space-responsive {
+    @apply space-y-4 sm:space-y-6 lg:space-y-8;
+  }
+  
+  .gap-responsive {
+    @apply gap-4 sm:gap-6 lg:gap-8;
+  }
+  
+  .padding-responsive {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+  
+  /* Container responsivo específico para NeuroLog */
+  .neurolog-container {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Grid responsivo automático */
+  .auto-grid {
+    @apply grid gap-4 sm:gap-6;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  
+  .auto-grid-sm {
+    @apply grid gap-3 sm:gap-4;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  
+  /* Flexbox responsivo */
+  .flex-responsive {
+    @apply flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0;
+  }
+  
+  /* Touch targets mejorados */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+  
+  /* Shadows responsivos */
+  .shadow-responsive {
+    @apply shadow-sm sm:shadow-md lg:shadow-lg;
+  }
+  
+  /* Animaciones específicas de NeuroLog */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+  
+  /* Hover states mejorados */
+  .hover-lift {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .hover-lift:hover {
+    @apply transform -translate-y-1 shadow-lg;
+  }
+  
+  /* Estados de loading */
+  .loading-pulse {
+    @apply animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200;
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+  }
+  
+  /* Card de niño responsivo */
+  .child-card-responsive {
+    @apply relative overflow-hidden rounded-lg border border-border bg-card shadow-sm;
+    @apply p-3 sm:p-4 lg:p-6 transition-all duration-200;
+    @apply hover:shadow-md hover:border-primary/20;
+  }
+  
+  /* Avatar responsivo */
+  .avatar-responsive {
+    @apply h-10 w-10 sm:h-12 sm:w-12 lg:h-16 lg:w-16;
+    @apply rounded-full border-2 border-primary/20;
+  }
+  
+  /* Botones responsivos */
+  .btn-responsive {
+    @apply px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3;
+    @apply text-sm sm:text-base;
+    @apply min-h-[44px] touch-target;
+  }
+  
+  /* Cards de estadísticas */
+  .stat-card {
+    @apply bg-white rounded-lg border border-gray-200 p-4 sm:p-6;
+    @apply hover:shadow-md transition-all duration-200;
+    @apply relative overflow-hidden;
+  }
+  
+  .stat-card::before {
+    content: '';
+    @apply absolute top-0 left-0 w-full h-1;
+    background: var(--neurolog-gradient);
+  }
+}
+
+/* ================================================================ */
+/* ANIMACIONES MEJORADAS */
+/* ================================================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes loading-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* ================================================================ */
+/* COMPONENTES ESPECÍFICOS DE NEUROLOG */
+/* ================================================================ */
+
+@layer components {
+  /* Header responsivo */
+  .neurolog-header {
+    @apply bg-white border-b border-gray-200 sticky top-0 z-30;
+    @apply px-4 sm:px-6 lg:px-8;
+    backdrop-filter: blur(8px);
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+  
+  /* Sidebar responsivo */
+  .neurolog-sidebar {
+    @apply fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200;
+    @apply transform transition-transform duration-300 ease-in-out;
+    @apply lg:relative lg:translate-x-0;
+  }
+  
+  .neurolog-sidebar.closed {
+    @apply -translate-x-full lg:translate-x-0;
+  }
+  
+  /* Navigation items */
+  .nav-item {
+    @apply flex items-center px-3 py-2 text-sm font-medium rounded-md;
+    @apply transition-colors duration-200;
+  }
+  
+  .nav-item.active {
+    @apply bg-primary text-primary-foreground;
+  }
+  
+  .nav-item:not(.active) {
+    @apply text-gray-600 hover:bg-gray-50 hover:text-gray-900;
+  }
+  
+  /* Formularios responsivos */
+  .form-responsive {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  .form-section {
+    @apply space-y-3 sm:space-y-4 p-4 sm:p-6 border border-border rounded-lg bg-card;
+  }
+  
+  .form-grid {
+    @apply grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2;
+  }
+  
+  /* Logs list responsivo */
+  .logs-list {
+    @apply space-y-3 sm:space-y-4;
+  }
+  
+  .log-item {
+    @apply flex items-start space-x-3 sm:space-x-4;
+    @apply p-3 sm:p-4 rounded-lg border bg-white;
+    @apply hover:bg-gray-50 transition-colors duration-200;
+  }
+  
+  /* Charts containers */
+  .chart-container {
+    @apply w-full overflow-hidden rounded-lg border border-border bg-card;
+    @apply p-4 sm:p-6;
+    min-height: 200px;
+  }
+  
+  .chart-responsive {
+    @apply w-full h-64 sm:h-80 lg:h-96;
+  }
+  
+  /* Modal responsivo */
+  .modal-responsive {
+    @apply w-full max-w-md sm:max-w-lg lg:max-w-xl xl:max-w-2xl;
+    @apply mx-4 sm:mx-auto;
+    @apply max-h-[90vh] overflow-y-auto;
+  }
+  
+  /* Toast notifications */
+  .toast-responsive {
+    @apply w-full max-w-sm mx-4 sm:mx-0;
+    @apply p-4 rounded-lg shadow-lg;
+  }
+}
+
+/* ================================================================ */
+/* OPTIMIZACIONES PARA DISPOSITIVOS TÁCTILES */
+/* ================================================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Reducir efectos hover en dispositivos táctiles */
+  .hover-lift:hover {
+    transform: none;
+  }
+  
+  .hover\:shadow-md:hover {
+    box-shadow: var(--neurolog-shadow);
+  }
+  
+  /* Aumentar áreas de toque */
+  button, a, [role="button"], [role="tab"] {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* Simplificar transiciones */
+  * {
+    transition-duration: 0.1s !important;
+  }
+}
+
+/* ================================================================ */
+/* BREAKPOINTS ESPECÍFICOS PARA NEUROLOG */
+/* ================================================================ */
+
+/* Mobile First Approach */
+@media (max-width: 640px) {
+  .neurolog-container {
+    @apply px-3;
+  }
+  
+  .child-card-responsive {
+    @apply p-3;
+  }
+  
+  .stat-card {
+    @apply p-3;
+  }
+  
+  .form-section {
+    @apply p-3;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .auto-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+  
+  .chart-responsive {
+    @apply h-72;
+  }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1025px) {
+  .auto-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+  
+  .chart-responsive {
+    @apply h-80;
+  }
+  
+  .modal-responsive {
+    @apply max-w-3xl;
+  }
+}
+
+/* Large desktop optimizations */
+@media (min-width: 1280px) {
+  .neurolog-container {
+    @apply px-8;
+  }
+  
+  .auto-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  }
+}
+
+/* ================================================================ */
+/* IMPRESIÓN */
+/* ================================================================ */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-full-width {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+}
+
+/* ================================================================ */
+/* ACCESIBILIDAD MEJORADA */
+/* ================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Ajustes específicos para tema oscuro si es necesario */
+  .neurolog-header {
+    background-color: rgba(0, 0, 0, 0.95);
+  }
+}
+
+/* ================================================================ */
+/* UTILIDADES DE DEBUGGING (Solo para desarrollo) */
+/* ================================================================ */
+
+.debug-grid {
+  background-image: 
+    linear-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.debug-breakpoint::before {
+  content: 'XS';
+  @apply fixed top-0 right-0 bg-red-500 text-white p-2 z-50;
+}
+
+@media (min-width: 640px) {
+  .debug-breakpoint::before {
+    content: 'SM';
+  }
+}
+
+@media (min-width: 768px) {
+  .debug-breakpoint::before {
+    content: 'MD';
+  }
+}
+
+@media (min-width: 1024px) {
+  .debug-breakpoint::before {
+    content: 'LG';
+  }
+}
+
+@media (min-width: 1280px) {
+  .debug-breakpoint::before {
+    content: 'XL';
+  }
+}
+
+@media (min-width: 1536px) {
+  .debug-breakpoint::before {
+    content: '2XL';
+  }
+}
