@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import * as React  from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
 import {
@@ -15,6 +15,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
+import { useMemo } from "react"
 
 const Form = FormProvider
 
@@ -35,8 +36,11 @@ const FormField = <
 >({
   ...props
 }: ControllerProps<TFieldValues, TName>) => {
+  const conyextValue = useMemo(() => ({
+    name: props.name
+  }), [props.name]);
   return (
-    <FormFieldContext.Provider value={{ name: props.name }}>
+    <FormFieldContext.Provider value={{ ...conyextValue }}>
       <Controller {...props} />
     </FormFieldContext.Provider>
   )
@@ -75,9 +79,9 @@ const FormItemContext = React.createContext<FormItemContextValue>(
 
 function FormItem({ className, ...props }: React.ComponentProps<"div">) {
   const id = React.useId()
-
+  const contextValue = useMemo(() => ({ id }), [id]);
   return (
-    <FormItemContext.Provider value={{ id }}>
+    <FormItemContext.Provider value={contextValue}>
       <div
         data-slot="form-item"
         className={cn("grid gap-2", className)}
