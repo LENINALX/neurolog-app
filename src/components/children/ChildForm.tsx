@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,10 +27,10 @@ import {
 } from '@/components/ui/form';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useChildren } from '@/hooks/use-children';
-import { uploadFile, getPublicUrl, STORAGE_BUCKETS } from '@/lib/supabase';
+import { uploadFile, getPublicUrl } from '@/lib/supabase';
 import type { Child, ChildInsert, ChildUpdate, EmergencyContact } from '@/types';
 import { 
-  CalendarIcon, 
+ 
   ImageIcon, 
   PlusIcon, 
   TrashIcon, 
@@ -119,7 +119,7 @@ interface PrivacySettingsFormProps {
 // COMPONENTES AUXILIARES
 // ================================================================
 
-function EmergencyContactForm({ contacts, onChange }: EmergencyContactFormProps) {
+function EmergencyContactForm({ contacts, onChange }: Readonly <EmergencyContactFormProps>) {
   const addContact = () => {
     onChange([...contacts, {
       name: '',
@@ -156,35 +156,35 @@ function EmergencyContactForm({ contacts, onChange }: EmergencyContactFormProps)
         </Button>
       </div>
 
-      {contacts.map((contact, index) => (
-        <Card key={index} className="p-4">
+      {contacts.map((contact) => (
+        <Card key={contact.id} className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor={`contact-name-${index}`}>Nombre</Label>
+              <Label htmlFor={`contact-name-${contact}`}>Nombre</Label>
               <Input
-                id={`contact-name-${index}`}
+                id={`contact-name-${contact.id}`}
                 value={contact.name}
-                onChange={(e) => updateContact(index, 'name', e.target.value)}
+                onChange={(e) => updateContact(contact.id, 'name', e.target.value)}
                 placeholder="Nombre completo"
               />
             </div>
             
             <div>
-              <Label htmlFor={`contact-phone-${index}`}>Teléfono</Label>
+              <Label htmlFor={`contact-phone-${contact.id}`}>Teléfono</Label>
               <Input
-                id={`contact-phone-${index}`}
+                id={`contact-phone-${contact.id}`}
                 value={contact.phone}
-                onChange={(e) => updateContact(index, 'phone', e.target.value)}
+                onChange={(e) => updateContact(contact.id, 'phone', e.target.value)}
                 placeholder="+1234567890"
               />
             </div>
             
             <div>
-              <Label htmlFor={`contact-relationship-${index}`}>Relación</Label>
+              <Label htmlFor={`contact-relationship-${contact.id}`}>Relación</Label>
               <Input
-                id={`contact-relationship-${index}`}
+                id={`contact-relationship-${contact.id}`}
                 value={contact.relationship}
-                onChange={(e) => updateContact(index, 'relationship', e.target.value)}
+                onChange={(e) => updateContact(contact.id, 'relationship', e.target.value)}
                 placeholder="Padre, Madre, Tutor, etc."
               />
             </div>
@@ -192,18 +192,18 @@ function EmergencyContactForm({ contacts, onChange }: EmergencyContactFormProps)
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Switch
-                  id={`contact-primary-${index}`}
+                  id={`contact-primary-${contact.id}`}
                   checked={contact.is_primary}
-                  onCheckedChange={(checked) => updateContact(index, 'is_primary', checked)}
+                  onCheckedChange={(checked) => updateContact(contact.id, 'is_primary', checked)}
                 />
-                <Label htmlFor={`contact-primary-${index}`}>Contacto Principal</Label>
+                <Label htmlFor={`contact-primary-${contact.id}`}>Contacto Principal</Label>
               </div>
               
               <Button
                 type="button"
                 variant="destructive"
                 size="sm"
-                onClick={() => removeContact(index)}
+                onClick={() => removeContact(contact.id)}
               >
                 <TrashIcon className="h-4 w-4" />
               </Button>
@@ -223,14 +223,42 @@ function EmergencyContactForm({ contacts, onChange }: EmergencyContactFormProps)
   );
 }
 
-function MedicalInfoForm({ medicalInfo, onChange }: MedicalInfoFormProps) {
+const ItemsList = ({ field, items, placeholder, onRemoveItem }: { 
+  field: string, 
+  items: string[], 
+  placeholder: string,
+  onRemoveItem: (field: string, index: number) => void 
+}) => (
+  <div className="space-y-2">
+    <div className="flex flex-wrap gap-2">
+      {items.map((item) => (
+        <Badge key={item.id} variant="secondary" className="text-sm">
+          {item}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-auto p-0 ml-2"
+            onClick={() => onRemoveItem(field, items.indexOf(item))}
+          >
+            <TrashIcon className="h-3 w-3" />
+          </Button>
+        </Badge>
+      ))}
+    </div>
+    {items.length === 0 && (
+      <p className="text-gray-500 text-sm">{placeholder}</p>
+    )}
+  </div>
+);
+function MedicalInfoForm({ medicalInfo, onChange }: Readonly <MedicalInfoFormProps>) {
   const [newAllergy, setNewAllergy] = useState('');
   const [newMedication, setNewMedication] = useState('');
   const [newCondition, setNewCondition] = useState('');
 
   const addItem = (field: string, value: string, setter: (value: string) => void) => {
     if (value.trim()) {
-      const currentItems = medicalInfo[field] || [];
+      const currentItems = medicalInfo[field] ?? [];
       onChange({
         ...medicalInfo,
         [field]: [...currentItems, value.trim()]
@@ -240,36 +268,22 @@ function MedicalInfoForm({ medicalInfo, onChange }: MedicalInfoFormProps) {
   };
 
   const removeItem = (field: string, index: number) => {
-    const currentItems = medicalInfo[field] || [];
+    const currentItems = medicalInfo[field] ?? [];
     onChange({
       ...medicalInfo,
       [field]: currentItems.filter((_: any, i: number) => i !== index)
     });
   };
 
-  const ItemsList = ({ field, items, placeholder }: { field: string, items: string[], placeholder: string }) => (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-2">
-        {items.map((item, index) => (
-          <Badge key={index} variant="secondary" className="text-sm">
-            {item}
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-auto p-0 ml-2"
-              onClick={() => removeItem(field, index)}
-            >
-              <TrashIcon className="h-3 w-3" />
-            </Button>
-          </Badge>
-        ))}
-      </div>
-      
+  const getInputValue = (field: string) => {
+  if (field === 'allergies') return newAllergy;
+  if (field === 'medications') return newMedication;
+  return newCondition;
+};    
       <div className="flex space-x-2">
         <Input
           placeholder={placeholder}
-          value={field === 'allergies' ? newAllergy : field === 'medications' ? newMedication : newCondition}
+          value={getInputValue(field)}
           onChange={(e) => {
             if (field === 'allergies') setNewAllergy(e.target.value);
             else if (field === 'medications') setNewMedication(e.target.value);
@@ -278,9 +292,9 @@ function MedicalInfoForm({ medicalInfo, onChange }: MedicalInfoFormProps) {
           onKeyPress={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
-              const value = field === 'allergies' ? newAllergy : field === 'medications' ? newMedication : newCondition;
-              const setter = field === 'allergies' ? setNewAllergy : field === 'medications' ? setNewMedication : setNewCondition;
-              addItem(field, value, setter);
+              if (field === 'allergies') setNewAllergy(e.target.value);
+              else if (field === 'medications') setNewMedication(e.target.value);
+              else setNewCondition(e.target.value);
             }
           }}
         />
@@ -289,9 +303,9 @@ function MedicalInfoForm({ medicalInfo, onChange }: MedicalInfoFormProps) {
           variant="outline"
           size="sm"
           onClick={() => {
-            const value = field === 'allergies' ? newAllergy : field === 'medications' ? newMedication : newCondition;
-            const setter = field === 'allergies' ? setNewAllergy : field === 'medications' ? setNewMedication : setNewCondition;
-            addItem(field, value, setter);
+            if (field === 'allergies') setNewAllergy(e.target.value);
+            else if (field === 'medications') setNewMedication(e.target.value);
+            else setNewCondition(e.target.value);
           }}
         >
           <PlusIcon className="h-4 w-4" />
@@ -309,7 +323,7 @@ function MedicalInfoForm({ medicalInfo, onChange }: MedicalInfoFormProps) {
         </Label>
         <ItemsList 
           field="allergies" 
-          items={medicalInfo.allergies || []} 
+          items={medicalInfo.allergies ?? []} 
           placeholder="Agregar alergia..." 
         />
       </div>
@@ -318,7 +332,7 @@ function MedicalInfoForm({ medicalInfo, onChange }: MedicalInfoFormProps) {
         <Label className="text-base font-medium mb-3 block">Medicamentos</Label>
         <ItemsList 
           field="medications" 
-          items={medicalInfo.medications || []} 
+          items={medicalInfo.medications ?? []} 
           placeholder="Agregar medicamento..." 
         />
       </div>
@@ -327,7 +341,7 @@ function MedicalInfoForm({ medicalInfo, onChange }: MedicalInfoFormProps) {
         <Label className="text-base font-medium mb-3 block">Condiciones Médicas</Label>
         <ItemsList 
           field="conditions" 
-          items={medicalInfo.conditions || []} 
+          items={medicalInfo.conditions ?? []} 
           placeholder="Agregar condición..." 
         />
       </div>
@@ -336,7 +350,7 @@ function MedicalInfoForm({ medicalInfo, onChange }: MedicalInfoFormProps) {
         <Label htmlFor="emergency-notes">Notas de Emergencia</Label>
         <Textarea
           id="emergency-notes"
-          value={medicalInfo.emergency_notes || ''}
+          value={medicalInfo.emergency_notes ?? ''}
           onChange={(e) => onChange({
             ...medicalInfo,
             emergency_notes: e.target.value
@@ -350,12 +364,12 @@ function MedicalInfoForm({ medicalInfo, onChange }: MedicalInfoFormProps) {
 }
 
 function EducationalInfoForm({ educationalInfo, onChange }: EducationalInfoFormProps) {
-  const [newGoal, setNewGoal] = useState('');
-  const [newAccommodation, setNewAccommodation] = useState('');
+  readonly const [newGoal, setNewGoal] = useState('');
+  readonly const [newAccommodation, setNewAccommodation] = useState('');
 
   const addItem = (field: string, value: string, setter: (value: string) => void) => {
     if (value.trim()) {
-      const currentItems = educationalInfo[field] || [];
+      const currentItems = educationalInfo[field] ?? [];
       onChange({
         ...educationalInfo,
         [field]: [...currentItems, value.trim()]
@@ -365,7 +379,7 @@ function EducationalInfoForm({ educationalInfo, onChange }: EducationalInfoFormP
   };
 
   const removeItem = (field: string, index: number) => {
-    const currentItems = educationalInfo[field] || [];
+    const currentItems = educationalInfo[field] ?? [];
     onChange({
       ...educationalInfo,
       [field]: currentItems.filter((_: any, i: number) => i !== index)
@@ -379,7 +393,7 @@ function EducationalInfoForm({ educationalInfo, onChange }: EducationalInfoFormP
           <Label htmlFor="school">Institución Educativa</Label>
           <Input
             id="school"
-            value={educationalInfo.school || ''}
+            value={educationalInfo.school ?? ''}
             onChange={(e) => onChange({
               ...educationalInfo,
               school: e.target.value
@@ -392,7 +406,7 @@ function EducationalInfoForm({ educationalInfo, onChange }: EducationalInfoFormP
           <Label htmlFor="grade">Grado/Nivel</Label>
           <Input
             id="grade"
-            value={educationalInfo.grade || ''}
+            value={educationalInfo.grade ?? ''}
             onChange={(e) => onChange({
               ...educationalInfo,
               grade: e.target.value
@@ -406,7 +420,7 @@ function EducationalInfoForm({ educationalInfo, onChange }: EducationalInfoFormP
         <Label htmlFor="teacher">Docente Principal</Label>
         <Input
           id="teacher"
-          value={educationalInfo.teacher || ''}
+          value={educationalInfo.teacher ?? ''}
           onChange={(e) => onChange({
             ...educationalInfo,
             teacher: e.target.value
@@ -422,8 +436,8 @@ function EducationalInfoForm({ educationalInfo, onChange }: EducationalInfoFormP
         </Label>
         <div className="space-y-2">
           <div className="flex flex-wrap gap-2">
-            {(educationalInfo.iep_goals || []).map((goal: string, index: number) => (
-              <Badge key={index} variant="secondary" className="text-sm">
+            {(educationalInfo.iep_goals ?? []).map((goal: string, index: number) => (
+              <Badge key={goal} variant="secondary" className="text-sm">
                 {goal}
                 <Button
                   type="button"
@@ -466,8 +480,8 @@ function EducationalInfoForm({ educationalInfo, onChange }: EducationalInfoFormP
         <Label className="text-base font-medium mb-3 block">Acomodaciones</Label>
         <div className="space-y-2">
           <div className="flex flex-wrap gap-2">
-            {(educationalInfo.accommodations || []).map((accommodation: string, index: number) => (
-              <Badge key={index} variant="secondary" className="text-sm">
+            {(educationalInfo.accommodations ?? []).map((accommodation: string, index: number) => (
+              <Badge key={accommodation} variant="secondary" className="text-sm">
                 {accommodation}
                 <Button
                   type="button"
@@ -509,7 +523,7 @@ function EducationalInfoForm({ educationalInfo, onChange }: EducationalInfoFormP
   );
 }
 
-function PrivacySettingsForm({ settings, onChange }: PrivacySettingsFormProps) {
+function PrivacySettingsForm({ settings, onChange }: Readonly <PrivacySettingsFormProps>) {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -588,20 +602,20 @@ function PrivacySettingsForm({ settings, onChange }: PrivacySettingsFormProps) {
 // ================================================================
 
 export default function ChildForm({ child, mode, onSuccess, onCancel }: ChildFormProps) {
-  const { user } = useAuth();
-  const { createChild, updateChild } = useChildren();
-  const [uploading, setUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState('basic');
-  const router = useRouter();
+  readonly const { user } = useAuth();
+  readonly const { createChild, updateChild } = useChildren();
+  readonly const [uploading, setUploading] = useState(false);
+  readonly const [activeTab, setActiveTab] = useState('basic');
+  readonly const router = useRouter();
 
   const form = useForm<ChildFormData>({
     resolver: zodResolver(childFormSchema),
     defaultValues: {
-      name: child?.name || '',
-      birth_date: child?.birth_date || '',
-      diagnosis: child?.diagnosis || '',
-      notes: child?.notes || '',
-      avatar_url: child?.avatar_url || '',
+      name: child?.name ?? '',
+      birth_date: child?.birth_date ?? '',
+      diagnosis: child?.diagnosis ?? '',
+      notes: child?.notes ?? '',
+      avatar_url: child?.avatar_url ?? '',
       emergency_contact: child?.emergency_contact || [],
       medical_info: child?.medical_info || {
         allergies: [],
@@ -673,6 +687,11 @@ export default function ChildForm({ child, mode, onSuccess, onCancel }: ChildFor
     { id: 'educational', label: 'Información Educativa', icon: GraduationCapIcon },
     { id: 'privacy', label: 'Privacidad', icon: ShieldIcon }
   ];
+
+  const getButtonText = () => {
+  if (form.formState.isSubmitting) return 'Guardando...';
+  return mode === 'create' ? 'Crear Niño' : 'Guardar Cambios';
+};
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -747,7 +766,7 @@ export default function ChildForm({ child, mode, onSuccess, onCancel }: ChildFor
                       alt={form.watch('name')}
                     />
                     <AvatarFallback className="bg-blue-100 text-blue-600 text-2xl">
-                      {form.watch('name')?.charAt(0)?.toUpperCase() || 'N'}
+                      {form.watch('name')?.charAt(0)?.toUpperCase() ?? 'N'}
                     </AvatarFallback>
                   </Avatar>
                   
@@ -939,16 +958,11 @@ export default function ChildForm({ child, mode, onSuccess, onCancel }: ChildFor
               </Button>
             )}
             <Button 
-              type="submit" 
+              type="submit"
               disabled={form.formState.isSubmitting}
             >
               <SaveIcon className="mr-2 h-4 w-4" />
-              {form.formState.isSubmitting
-                ? 'Guardando...'
-                : mode === 'create' 
-                  ? 'Crear Niño' 
-                  : 'Guardar Cambios'
-              }
+                {getButtonText()}
             </Button>
           </div>
         </form>
