@@ -3,7 +3,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,22 +17,22 @@ import {
   Users, 
   BookOpen, 
   TrendingUp, 
-  Calendar, 
+
   Heart,
   AlertCircle,
-  Clock,
+
   Eye,
   Plus,
   BarChart3,
-  Bell,
+
   Activity,
-  Target,
-  Award,
+
+
   ChevronRight,
-  MoreHorizontal
+
 } from 'lucide-react';
 import Link from 'next/link';
-import { format, isToday, isYesterday, startOfWeek, endOfWeek } from 'date-fns';
+import { format, isToday, isYesterday } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 // ================================================================
@@ -58,41 +58,41 @@ interface RecentLogsProps {
 // COMPONENTE DE ESTADÍSTICAS RÁPIDAS RESPONSIVO
 // ================================================================
 
-function QuickStats({ stats, loading }: QuickStatsProps) {
-  const statCards = [
+function QuickStats({ stats, loading }: Readonly<QuickStatsProps>) {
+   const statCards = [
     {
       title: 'Niños',
-      value: stats.total_children || 0,
+      value: stats.total_children ?? 0,
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
       description: 'En seguimiento',
-      trend: stats.children_growth || 0
+      trend: stats.children_growth ?? 0
     },
     {
       title: 'Registros',
-      value: stats.total_logs || 0,
+      value: stats.total_logs ?? 0,
       icon: BookOpen,
       color: 'text-green-600',
       bgColor: 'bg-green-50',
       borderColor: 'border-green-200',
       description: 'Documentados',
-      trend: stats.logs_growth || 0
+      trend: stats.logs_growth ?? 0
     },
     {
       title: 'Esta Semana',
-      value: stats.logs_this_week || 0,
+      value: stats.logs_this_week ?? 0,
       icon: TrendingUp,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-200',
       description: 'Nuevos registros',
-      trend: stats.weekly_growth || 0
+      trend: stats.weekly_growth ?? 0
     },
     {
       title: 'Pendientes',
-      value: stats.pending_reviews || 0,
+      value: stats.pending_reviews ?? 0,
       icon: AlertCircle,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50',
@@ -100,13 +100,30 @@ function QuickStats({ stats, loading }: QuickStatsProps) {
       description: 'Para revisar',
       trend: 0
     }
+    
+
   ];
+  const getProgressColor = (weeklyLogs: number) => {
+  if (weeklyLogs >= 5) return "bg-green-500";
+  if (weeklyLogs >= 3) return "bg-yellow-500";
+  return "bg-red-500";
+  };
+
+  const getDateLabel = (createdAt: string) => {
+  const date = new Date(createdAt);
+  
+  if (isToday(date)) return 'Hoy';
+  if (isYesterday(date)) return 'Ayer';
+  
+  // Agregar más condiciones según sea necesario
+  return format(date, 'dd MMM yyyy'); // o el formato que uses por defecto
+};
 
   if (loading) {
     return (
       <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
+          <Card key={`skeleton-${i}`} className="animate-pulse">
             <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between space-x-2">
                 <div className="space-y-2 flex-1">
@@ -126,7 +143,7 @@ function QuickStats({ stats, loading }: QuickStatsProps) {
   return (
     <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 lg:grid-cols-4">
       {statCards.map((stat, index) => (
-        <Card key={index} className={`hover:shadow-md transition-all duration-200 ${stat.borderColor} border-l-4`}>
+        <Card key={stat.title} className={`hover:shadow-md transition-all duration-200 ${stat.borderColor} border-l-4`}>
           <CardContent className="p-3 sm:p-4 md:p-6">
             <div className="flex items-center justify-between space-x-2">
               <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
@@ -161,12 +178,12 @@ function QuickStats({ stats, loading }: QuickStatsProps) {
 // COMPONENTE DE NIÑOS ACCESIBLES RESPONSIVO
 // ================================================================
 
-function AccessibleChildren({ children, loading }: AccessibleChildrenProps) {
+function AccessibleChildren({ children, loading }: Readonly<AccessibleChildrenProps>) {
   if (loading) {
     return (
       <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {[...Array(3)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
+          <Card key={`skeleton-${i}`} className="animate-pulse">
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center space-x-3 sm:space-x-4">
                 <Skeleton className="h-12 w-12 sm:h-16 sm:w-16 rounded-full" />
@@ -256,14 +273,14 @@ function AccessibleChildren({ children, loading }: AccessibleChildrenProps) {
               <div className="mt-4 space-y-2">
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>Actividad semanal</span>
-                  <span>{child.weekly_logs || 0}/7</span>
+                  <span>{child.weekly_logs ?? 0}/7</span>
                 </div>
                 <Progress 
-                  value={((child.weekly_logs || 0) / 7) * 100} 
+                  value={((child.weekly_logs ?? 0) / 7) * 100} 
                   className="h-2"
                   indicatorClassName={
-                    (child.weekly_logs || 0) >= 5 ? "bg-green-500" :
-                    (child.weekly_logs || 0) >= 3 ? "bg-yellow-500" : "bg-red-500"
+                    (child.weekly_logs ?? 0) >= 5 ? "bg-green-500" :
+                    getProgressColor(child.weekly_logs || 0)
                   }
                 />
               </div>
@@ -290,12 +307,12 @@ function AccessibleChildren({ children, loading }: AccessibleChildrenProps) {
 // COMPONENTE DE REGISTROS RECIENTES RESPONSIVO
 // ================================================================
 
-function RecentLogs({ logs, loading }: RecentLogsProps) {
+function RecentLogs({ logs, loading }:Readonly <RecentLogsProps>) {
   if (loading) {
     return (
       <div className="space-y-3 sm:space-y-4">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg border bg-white animate-pulse">
+          <div key={`skeleton-${i}`} className="flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-lg border bg-white animate-pulse">
             <Skeleton className="h-10 w-10 rounded-full" />
             <div className="flex-1 space-y-2">
               <Skeleton className="h-4 w-3/4" />
@@ -330,6 +347,10 @@ function RecentLogs({ logs, loading }: RecentLogsProps) {
     );
   }
 
+  function getDateLabel(created_at: any): import("react").ReactNode {
+    throw new Error('Function not implemented.');
+  }
+
   return (
     <div className="space-y-3 sm:space-y-4">
       {logs.slice(0, 5).map((log) => (
@@ -357,7 +378,7 @@ function RecentLogs({ logs, loading }: RecentLogsProps) {
                   </div>
                 )}
                 <Badge variant="outline" className="text-xs">
-                  {log.category_name || 'General'}
+                  {log.category_name ?? 'General'}
                 </Badge>
               </div>
             </div>
@@ -371,9 +392,7 @@ function RecentLogs({ logs, loading }: RecentLogsProps) {
                 <span className="font-medium">{log.child_name}</span>
                 <span className="mx-1">•</span>
                 <span>
-                  {isToday(new Date(log.created_at)) ? 'Hoy' :
-                   isYesterday(new Date(log.created_at)) ? 'Ayer' :
-                   format(new Date(log.created_at), 'dd MMM', { locale: es })}
+                  {getDateLabel(log.created_at)}
                 </span>
               </div>
               
@@ -407,7 +426,7 @@ function RecentLogs({ logs, loading }: RecentLogsProps) {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { children, loading: childrenLoading, stats: childrenStats } = useChildren();
+  useChildren();
   const { logs, loading: logsLoading, stats } = useLogs();
 
   const greeting = () => {
@@ -423,7 +442,7 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            {greeting()}, {user?.user_metadata?.full_name?.split(' ')[0] || 'Usuario'}
+            {greeting()}, {user?.user_metadata?.full_name?.split(' ')[0] ?? 'Usuario'}
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
             Aquí está el resumen de hoy para tus niños en seguimiento
