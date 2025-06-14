@@ -19,10 +19,27 @@ import {
 } from '@/components/ui/popover';
 
 interface DatePickerWithRangeProps {
-  className?: string;
-  date?: DateRange;
-  setDate: (date: DateRange | undefined) => void;
+  readonly className?: string;
+  readonly date?: DateRange;
+  readonly setDate: (date: DateRange | undefined) => void;
 }
+
+const getDateRangeText = () => {
+  if (!date?.from) {
+    return <span>Seleccionar fechas</span>;
+  }
+  
+  if (date.to) {
+    return (
+      <>
+        {format(date.from, "dd LLL, y", { locale: es })} -{" "}
+        {format(date.to, "dd LLL, y", { locale: es })}
+      </>
+    );
+  }
+  
+  return format(date.from, "dd LLL, y", { locale: es });
+};
 
 export function DatePickerWithRange({
   className,
@@ -42,18 +59,7 @@ export function DatePickerWithRange({
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, 'dd LLL y', { locale: es })} -{' '}
-                  {format(date.to, 'dd LLL y', { locale: es })}
-                </>
-              ) : (
-                format(date.from, 'dd LLL y', { locale: es })
-              )
-            ) : (
-              <span>Seleccionar fechas</span>
-            )}
+            {getDateRangeText()}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
