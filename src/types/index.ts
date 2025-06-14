@@ -55,6 +55,7 @@ export interface ProfileUpdate {
 // ================================================================
 
 export interface EmergencyContact {
+  id: Key | null | undefined;
   name: string;
   phone: string;
   relationship: string;
@@ -269,6 +270,7 @@ export interface LogUpdate {
 
 // Tipo combinado para logs con información detallada
 export interface LogWithDetails extends DailyLog {
+  category_name: any;
   child: {
     id: string;
     name: string;
