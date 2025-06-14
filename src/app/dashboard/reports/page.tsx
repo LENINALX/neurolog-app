@@ -5,10 +5,10 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Select,
@@ -29,24 +29,24 @@ import { ExportReportDialog } from '@/components/reports/ExportReportDialog';
 import { TimePatterns, CorrelationAnalysis, AdvancedInsights } from '@/components/reports/TimePatterns';
 import type { DateRange } from 'react-day-picker';
 import { 
-  BarChart3,
+
   TrendingUp,
   Calendar,
   Download,
   FileText,
   PieChart,
-  LineChart,
-  Users,
-  Activity,
+
+
+
   Heart,
   Target,
-  Award,
+
   AlertTriangle,
-  CheckCircle,
-  Clock
+
+
 } from 'lucide-react';
-import { format, subDays, subWeeks, subMonths } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { subMonths } from 'date-fns';
+
 
 // ================================================================
 // FUNCIÓN HELPER PARA CALCULAR TENDENCIA DE MEJORA
@@ -71,9 +71,9 @@ function calculateImprovementTrend(logs: any[]): number {
 }
 
 export default function ReportsPage() {
-  const { user } = useAuth();
+  useAuth();
   const { children, loading: childrenLoading } = useChildren();
-  const { logs, stats, loading: logsLoading } = useLogs();
+  const { logs, loading: logsLoading } = useLogs();
   
   const [selectedChild, setSelectedChild] = useState<string>('all');
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -111,6 +111,26 @@ export default function ReportsPage() {
     followUpsRequired: filteredLogs.filter(l => l.follow_up_required).length,
     activeDays: new Set(filteredLogs.map(l => new Date(l.created_at).toDateString())).size
   };
+  const getMoodColor = (averageMood: number) => {
+  if (averageMood >= 4) return 'green';
+  if (averageMood >= 3) return 'orange';
+  return 'red';
+ };
+ const getTrendColor = (trend: number) => {
+  if (trend > 0) return 'green';
+  if (trend < 0) return 'red';
+  return 'gray';
+};
+
+const getTrendValue = (trend: number) => {
+  return trend > 0 ? '+' : '';
+};
+
+const getTrendIcon = (trend: number) => {
+  if (trend > 0) return TrendingUp;
+  if (trend < 0) return TrendingDown;
+  return Target;
+};
 
   if (childrenLoading || logsLoading) {
     return (
@@ -144,9 +164,9 @@ export default function ReportsPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Niño</label>
+              <label htmlFor="child-select" className="text-sm font-medium mb-2 block">Niño</label>
               <Select value={selectedChild} onValueChange={setSelectedChild}>
-                <SelectTrigger>
+                <SelectTrigger id="child-select">
                   <SelectValue placeholder="Seleccionar niño" />
                 </SelectTrigger>
                 <SelectContent>
@@ -161,8 +181,9 @@ export default function ReportsPage() {
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-2 block">Período</label>
+              <label htmlFor="date-range-picker" className="text-sm font-medium mb-2 block">Período</label>
               <DatePickerWithRange 
+                id="date-range-picker" 
                 date={dateRange}
                 onDateChange={setDateRange}
               />
@@ -201,16 +222,16 @@ export default function ReportsPage() {
           value={metrics.averageMood.toFixed(1)}
           suffix="/5"
           icon={Heart}
-          color={metrics.averageMood >= 4 ? 'green' : metrics.averageMood >= 3 ? 'orange' : 'red'}
+          color={getMoodColor(metrics.averageMood)}
           subtitle="Promedio del período"
         />
         
         <MetricCard
           title="Tendencia"
-          value={metrics.improvementTrend > 0 ? '+' : ''}
-          icon={metrics.improvementTrend > 0 ? TrendingUp : metrics.improvementTrend < 0 ? TrendingUp : Target}
-          color={metrics.improvementTrend > 0 ? 'green' : metrics.improvementTrend < 0 ? 'red' : 'gray'}
-          subtitle={metrics.improvementTrend > 0 ? 'Mejorando' : metrics.improvementTrend < 0 ? 'Necesita atención' : 'Estable'}
+          value={getTrendValue(metrics.improvementTrend)}
+          icon={getTrendIcon(metrics.improvementTrend)}
+          color=  {getTrendColor(metrics.improvementTrend)}
+          subtitle="Promedio del período"
         />
         
         <MetricCard
@@ -360,7 +381,7 @@ interface MetricCardProps {
   suffix?: string;
 }
 
-function MetricCard({ title, value, icon: Icon, color, subtitle, suffix }: MetricCardProps) {
+function MetricCard({ title, value, icon: Icon, color, subtitle, suffix }:Readonly<MetricCardProps>) {
   const colorClasses = {
     blue: 'bg-blue-100 text-blue-600',
     red: 'bg-red-100 text-red-600',
