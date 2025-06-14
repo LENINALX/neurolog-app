@@ -142,7 +142,7 @@ export function Sidebar() {
     return pathname.startsWith(href);
   };
 
-  const getRoleDisplayName = (role) => {
+  const getRoleDisplayName = (role: string | undefined) => {
   switch (role) {
     case 'parent':
       return 'Padre/Madre';
