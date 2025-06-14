@@ -91,6 +91,19 @@ export function Header() {
       '/dashboard/admin': 'Administración',
       '/dashboard/settings': 'Configuración'
     };
+
+    const getRoleDisplayName = (role) => {
+  switch (role) {
+    case 'parent':
+      return 'Padre/Madre';
+    case 'specialist':
+      return 'Especialista';
+    case 'admin':
+      return 'Administrador';
+    default:
+      return 'Usuario';
+  }
+};
     
     // Find exact match or closest parent route
     let title = titles[pathname];
@@ -145,6 +158,10 @@ export function Header() {
     { name: 'Calendario', href: '/dashboard/calendar', icon: Calendar },
     { name: 'Exportar', href: '/dashboard/export', icon: Download },
   ];
+
+  function getRoleDisplayName(role: string | undefined): import("react").ReactNode {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200">
@@ -299,13 +316,10 @@ export function Header() {
                 </Avatar>
                 <div className="hidden sm:block text-left">
                   <p className="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-24 lg:max-w-32">
-                    {user?.full_name || 'Usuario'}
+                    {user?.full_name ?? 'Usuario'}
                   </p>
                   <p className="text-xs text-gray-500 capitalize">
-                    {user?.role === 'parent' ? 'Padre/Madre' : 
-                     user?.role === 'teacher' ? 'Docente' :
-                     user?.role === 'specialist' ? 'Especialista' :
-                     user?.role === 'admin' ? 'Admin' : 'Usuario'}
+                    {getRoleDisplayName(user?.role)}
                   </p>
                 </div>
                 <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
