@@ -4,7 +4,11 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+function Table({
+  className,
+  children, // <-- AÑADIDO: para recibir el contenido de la tabla
+  ...props
+}: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
@@ -14,9 +18,12 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
         data-slot="table"
         className={cn("w-full caption-bottom text-sm", className)}
         {...props}
-      />
+      >
+        {/* AÑADIDO: para mostrar el contenido que se le pase */}
+        {children}
+      </table>
     </div>
-  )
+  );
 }
 
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
